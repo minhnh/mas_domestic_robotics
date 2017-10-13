@@ -2,11 +2,9 @@
 
 import rospy
 import smach
-import smach_ros
-import actionlib
-
 from geometry_msgs.msg import Twist
 from mdr_move_forward_action.msg import MoveForwardFeedback, MoveForwardResult
+
 
 class SetupMoveForward(smach.State):
     def __init__(self):
@@ -24,6 +22,7 @@ class SetupMoveForward(smach.State):
         userdata.move_forward_feedback = feedback
 
         return 'succeeded'
+
 
 class MoveForward(smach.State):
     def __init__(self, timeout=120.0, velocity_topic='/base/twist_mux/command_navigation'):
@@ -49,6 +48,7 @@ class MoveForward(smach.State):
         self.velocity_pub.publish(zero_twist)
 
         return 'succeeded'
+
 
 class SetActionLibResult(smach.State):
     def __init__(self, result):
