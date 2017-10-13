@@ -67,7 +67,7 @@ class SimplePickup:
         rospy.logdebug('Found a trajectory')
 
         # open the hand
-        sdh_handle = self.sss.move('sdh', 'cylopen', blocking = False)
+        sdh_handle = self.sss.move('gripper', 'cylopen', blocking = False)
 
         # move the arm along the calculated trajectory to the grasp
         #self.sss.move('arm', traj[0:len(traj)-2], blocking = True)
@@ -75,7 +75,7 @@ class SimplePickup:
 
         # close the hand
         rospy.logdebug('Grasping the object')
-        self.sss.move('sdh', 'cylclosed')
+        self.sss.move('gripper', 'cylclosed')
 
         # move to post-grasp
         rospy.logdebug('Moving to post-grasp')
