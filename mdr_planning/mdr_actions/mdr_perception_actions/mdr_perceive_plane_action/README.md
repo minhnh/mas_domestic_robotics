@@ -1,0 +1,31 @@
+# mdr_perceive_plane_action
+
+An action for recognizing objects on a plane.
+
+## Action definition
+
+### Goal:
+
+Name of the configuration set for setting up the dynamic parameter server.
+Each plane should have a set of configurations, and all configuration sets
+should be listed in ``config/perceive_plane_configurations.yaml``
+
+### Result:
+
+* ``bool success``
+
+### Feedback:
+
+* ``string current_state``
+* ``string message``
+
+## Dependencies
+
+* ``std_msgs``
+* ``mdr_object_recognition_mean_circle``
+
+## Example usage
+
+1. Launch object recognition node (this should launch the entire perception pipeline): ``roslaunch mdr_object_recognition_mean_circle object_recognition.launch``
+2. Run the action server: ``roslaunch mdr_perceive_plane_action perceive_plane.launch``
+3. Run the client example: ``rosrun mdr_perceive_plane_action perceive_plane_client_test``

@@ -8,8 +8,8 @@ from mdr_perceive_plane_action.msg import PerceivePlaneResult, PerceivePlaneFeed
 class SetupPlaneConfig(smach.State):
     def __init__(self, sleep_duration=1):
         smach.State.__init__(self, outcomes=['success', 'waiting', 'failure', 'timeout'],
-                                   input_keys=['perceive_plane_goal'],
-                                   output_keys=['perceive_plane_feedback'])
+                             input_keys=['perceive_plane_goal'],
+                             output_keys=['perceive_plane_feedback'])
         self.sleep_duration = sleep_duration
 
         self.config_name_pub = rospy.Publisher("/mcr_common/dynamic_reconfigure_client/configuration_name",
@@ -72,4 +72,3 @@ class SetActionLibResult(smach.State):
         result.success = self.result
         userdata.perceive_plane_result = result
         return 'succeeded'
-

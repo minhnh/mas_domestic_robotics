@@ -31,3 +31,7 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+
+roslint_python()
+roslint_cpp()
+
