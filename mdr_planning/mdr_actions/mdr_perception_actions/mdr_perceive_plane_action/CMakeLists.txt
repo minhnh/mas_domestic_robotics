@@ -33,5 +33,4 @@ include_directories(
 )
 
 roslint_python()
-roslint_cpp()
 
