@@ -10,8 +10,8 @@ import smach
 from smach_ros import ActionServerWrapper, IntrospectionServer
 from mdr_pickup_action.msg import PickUpAction, PickUpResult, PickUpFeedback
 
-import mdr_pickup_action.kinematics as kinematics
-import mdr_pickup_action.move_arm as move_arm
+import mdr_lwr_kinematics.kinematics as kinematics
+import mdr_lwr_kinematics.move_arm as move_arm
 
 class SetupPickUp(smach.State):
     def __init__(self):

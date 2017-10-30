@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   actionlib_msgs
   actionlib
+  mdr_lwr_kinematics
 )
 
 ## System dependencies are found with CMake's conventions
@@ -112,6 +113,7 @@ catkin_package(
     mdr_behavior_msgs
     moveit_msgs
     sensor_msgs
+    mdr_lwr_kinematics
 )
 
 ###########
