@@ -67,7 +67,7 @@ catkin_python_setup()
 ## Generate actions in the 'action' folder
  add_action_files(
    DIRECTORY
-   action
+   ros/action
    FILES
    PickUp.action
  )
