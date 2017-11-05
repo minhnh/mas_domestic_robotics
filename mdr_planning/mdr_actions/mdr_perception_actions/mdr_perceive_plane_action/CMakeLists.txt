@@ -33,6 +33,12 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+catkin_install_python(PROGRAMS
+    scripts/perceive_plane_action
+    scripts/perceive_plane_client_test
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 roslint_python()
 roslaunch_add_file_check(launch)
 
