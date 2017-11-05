@@ -1,8 +1,6 @@
 #!/usr/bin/python
-
 import rospy
 import smach
-import smach_ros
 import actionlib
 from actionlib import SimpleActionClient
 
