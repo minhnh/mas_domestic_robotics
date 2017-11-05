@@ -6,8 +6,8 @@ An action for recognizing objects on a plane.
 
 ### Goal:
 
-Name of the configuration set for setting up the dynamic parameter server.
-Each plane should have a set of configurations, and all configuration sets
+* ``string plane_config``: Name of the configuration set for setting up the dynamic parameter
+server. Each plane should have a set of configurations, and all configuration sets
 should be listed in ``config/perceive_plane_configurations.yaml``
 
 ### Result:
@@ -21,8 +21,10 @@ should be listed in ``config/perceive_plane_configurations.yaml``
 
 ## Dependencies
 
-* ``std_msgs``
 * ``mdr_object_recognition_mean_circle``
+* ``mcr_dynamic_reconfigure_client``
+* ``mcr_states``
+* ``mcr_perception_msgs``
 
 ## Example usage
 

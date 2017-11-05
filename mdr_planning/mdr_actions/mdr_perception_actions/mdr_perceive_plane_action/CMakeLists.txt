@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   roslint
   rospy
+  roslaunch
 )
 
 catkin_python_setup()
@@ -33,5 +34,5 @@ include_directories(
 )
 
 roslint_python()
-roslint_cpp()
+roslaunch_add_file_check(launch)
 
