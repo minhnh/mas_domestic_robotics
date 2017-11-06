@@ -1,20 +1,39 @@
 #!/usr/bin/env python
-
 import rospy
 import actionlib
 import simple_script_server
 import geometry_msgs.msg
 import tf
 import math
+import smach
 
-import mdr_behavior_msgs.srv
-import kinematics
-import move_arm
+from smach_ros import ActionServerWrapper, IntrospectionServer
+from mdr_pickup_action.msg import PickUpAction, PickUpResult, PickUpFeedback
+
+import mdr_lwr_kinematics.kinematics as kinematics
+import mdr_lwr_kinematics.move_arm as move_arm
 
 
-class SimplePickup:
-
+class SetupPickUp(smach.State):
     def __init__(self):
+        smach.State.__init__(self, outcomes=['succeeded', 'failed'],
+                             input_keys=['pickup_goal'],
+                             output_keys=['pickup_feedback', 'pickup_result'])
+
+    def execute(self, userdata):
+        feedback = PickUpFeedback()
+        feedback.current_state = 'SETUP_PICKUP'
+        feedback.message = '[pickup] starting pickup skill'
+        userdata.pickup_feedback = feedback
+        return 'succeeded'
+
+
+class PickUp(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['succeeded', 'failed'],
+                             input_keys=['pickup_goal'],
+                             output_keys=['pickup_feedback', 'pickup_result'])
+
         self.kinematics = kinematics.Kinematics('arm')
         self.move_arm = move_arm.MoveArm('arm')
 
@@ -25,7 +44,7 @@ class SimplePickup:
         # height of the post-grasp over the object center
         self.post_grasp_height = rospy.get_param('~post_grasp_height')
         # at which angle of approach to start searching for a solution
-        self.orbit_start_angle = 30.0 * math.pi / 180.0;
+        self.orbit_start_angle = 30.0 * math.pi / 180.0
 
         rospy.loginfo('Pre-grasp distance: %f', self.pre_grasp_distance)
         rospy.loginfo('Grasp distance: %f', self.grasp_distance)
@@ -33,44 +52,30 @@ class SimplePickup:
 
         self.sss = simple_script_server.simple_script_server()
 
-        # action clients
-        #rospy.loginfo('Waiting for 'grasp_posture_control' action')
-        #self.hand_action = actionlib.SimpleActionClient('grasp_posture_control', object_manipulation_msgs.msg.GraspHandPostureExecutionAction)
-        #self.hand_action.wait_for_server()
-        #rospy.loginfo('Found action 'grasp_posture_control'')
-
-        # service servers
-        self.pickup_server = rospy.Service('pickup', mdr_behavior_msgs.srv.Pickup, self.pickup)
-        rospy.loginfo('"pickup" service advertised')
-
-
-    def pickup(self, req):
+    def execute(self, userdata):
         '''
         Perform the pickup task
 
-        :param req: mdr_behavior_msgs.PickupRequest
-            req.position: geometry_msgs.msg.PointStamped
+        :param goal: mdr_behavior_msgs.PickupRequest
+            goal.position: geometry_msgs.msg.PointStamped
         '''
         rospy.logdebug('Start planning trajectory')
 
-        req.position.point.y += 0.05
+        userdata.pickup_goal.position.point.y += 0.05
 
         # pre-calculate the trajectory to the position
-        traj = self.plan_trajectory(req.position)
+        traj = self.plan_trajectory(userdata.pickup_goal.position)
 
         if (not traj):
             rospy.loginfo('No trajectory found')
-            res = mdr_behavior_msgs.srv.PickupResponse()
-            res.success = False
-            return res
+            return 'failed'
 
         rospy.logdebug('Found a trajectory')
 
         # open the hand
-        sdh_handle = self.sss.move('gripper', 'cylopen', blocking = False)
+        sdh_handle = self.sss.move('gripper', 'cylopen', blocking=False)
 
         # move the arm along the calculated trajectory to the grasp
-        #self.sss.move('arm', traj[0:len(traj)-2], blocking = True)
         self.move_arm.move(traj[0:len(traj) - 2])
 
         # close the hand
@@ -79,15 +84,10 @@ class SimplePickup:
 
         # move to post-grasp
         rospy.logdebug('Moving to post-grasp')
-        #self.sss.move('arm', traj[len(traj)-2:len(traj)], blocking = True)
         self.move_arm.move(traj[len(traj) - 2:len(traj)])
 
-        res = mdr_behavior_msgs.srv.PickupResponse()
-        res.success = True
         rospy.loginfo('Grasped the object successfully')
-
-        return res
-
+        return 'succeeded'
 
     def plan_trajectory(self, position):
         '''
@@ -99,13 +99,8 @@ class SimplePickup:
         :return: None or ([Float[7], ..., Float[7]]
         '''
 
-        # extract the the pre-grasp pose from the parameter server
-        pregrasp_param = rospy.get_param('/script_server/arm/home')
-        #prepregrasp_param = rospy.get_param('/script_server/arm/prepregrasp')
-        #prepregrasp = prepregrasp_param[0]
-        init_configuration = pregrasp_param[0]
-
-        prepregrasp = [-1.5091513691305107, -1.6491849487892085, -2.3696059954222668, -1.6160414652896298, 0.52644578912550133, 1.9561455454345944, -2.3656075221199249]
+        # Prepregrasp pose
+        prepregrasp = [-1.51, -1.65, -2.37, -1.62, 0.53, 1.96, -2.37]
 
         angle_counter = -0.2
         while (angle_counter < math.pi):
@@ -122,31 +117,36 @@ class SimplePickup:
             rospy.loginfo('Planning grasp with approach angle: %f', angle)
 
             # determine the trajectory to the pre-grasp pose
-            traj_pregrasp = self.calculate_trajectory_abs(position, self.pre_grasp_distance, angle, 0.1, prepregrasp)
+            height = 0.1
+            distance = self.pre_grasp_distance
+            traj_pregrasp = self.calculate_trajectory_abs(position, s, angle, height, prepregrasp)
             if (not traj_pregrasp):
                 continue
 
             rospy.loginfo('Found pre-grasp')
 
             # determine the trajectory to the grasp pose
-            traj_grasp = self.calculate_trajectory_abs(position, self.grasp_distance, angle, 0.0, traj_pregrasp)
+            height = 0.0
+            distance = self.grasp_distance
+            traj_grasp = self.calculate_trajectory_abs(position, distancee, angle, height, traj_pregrasp)
             if (not traj_grasp):
                 continue
 
             rospy.loginfo('Found grasp')
 
             # determine the trajectory to the post-grasp pose
-            traj_post_grasp = self.calculate_trajectory_abs(position, self.grasp_distance, angle, self.post_grasp_height, traj_grasp)
-            if (not traj_post_grasp):
+            height = self.post_grasp_height
+            distance = self.grasp_distance
+            traj_post = self.calculate_trajectory_abs(position, distance, angle, height, traj_grasp)
+            if (not traj_post):
                 continue
 
             rospy.loginfo('Found post-grasp')
 
             # if all trajectories have been determined we return the result
-            return [list(prepregrasp), list(traj_pregrasp), list(traj_grasp), list(traj_post_grasp), list(prepregrasp)]
+            return [list(prepregrasp), list(traj_pregrasp), list(traj_grasp), list(traj_post), list(prepregrasp)]
 
         return None
-
 
     def calculate_trajectory_abs(self, position, distance, angle, height, configuration):
         '''
@@ -166,8 +166,6 @@ class SimplePickup:
 
         # determine the inverse kinematics solution
         return self.kinematics.inverse_kinematics(pose, configuration)
-
-
 
     def calculate_pose_abs(self, position, distance, angle, height):
         '''
@@ -204,9 +202,15 @@ class SimplePickup:
         return pose
 
 
-def main():
-    rospy.init_node('pickup')
+class SetActionLibResult(smach.State):
+    def __init__(self, result):
+        smach.State.__init__(self, outcomes=['succeeded'],
+                             input_keys=['pickup_goal'],
+                             output_keys=['pickup_feedback', 'pickup_result'])
+        self.result = result
 
-    pickup = SimplePickup()
-
-    rospy.spin()
+    def execute(self, userdata):
+        result = PickUpResult()
+        result.success = self.result
+        userdata.pickup_result = result
+        return 'succeeded'
