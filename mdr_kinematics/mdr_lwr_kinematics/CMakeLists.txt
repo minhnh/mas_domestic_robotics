@@ -9,6 +9,10 @@ find_package(catkin REQUIRED COMPONENTS
   pluginlib
   roscpp
   tf_conversions
+  rospy
+  geometry_msgs
+  actionlib_msgs
+  actionlib
 )
 
 include_directories(
@@ -18,11 +22,16 @@ include_directories(
   ${EIGEN_INCLUDE_DIRS}
 )
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS
+  actionlib_msgs
+)
 
 set(IKFAST_LIBRARY_NAME lwr_moveit_ikfast_plugin)
 
 find_package(LAPACK REQUIRED)
+
+catkin_python_setup()
 
 add_library(${IKFAST_LIBRARY_NAME}
   src/lwr_ikfast_moveit_plugin.cpp
