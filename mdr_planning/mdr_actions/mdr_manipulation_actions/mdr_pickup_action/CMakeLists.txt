@@ -14,7 +14,13 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   actionlib
   mdr_lwr_kinematics
+  roslint
+  message_generation
 )
+
+roslint_python()  # pep8 linting
+roslint_cpp()     # ROS wrapper of Google's cpplint
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -50,11 +56,11 @@ catkin_python_setup()
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
+#add_message_files(
 #   FILES
 #   Message1.msg
 #   Message2.msg
-# )
+#)
 
 
 ## Generate services in the 'srv' folder
@@ -114,6 +120,9 @@ catkin_package(
     moveit_msgs
     sensor_msgs
     mdr_lwr_kinematics
+    actionlib_msgs
+    geometry_msgs
+    message_runtime
 )
 
 ###########
@@ -166,10 +175,11 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(PROGRAMS
+   ros/scripts/pickup_action.py
+   ros/scripts/pickup_action_client_test.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}/scripts
+)
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node

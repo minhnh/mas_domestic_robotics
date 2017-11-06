@@ -17,8 +17,8 @@ if __name__ == '__main__':
     goal.position.header.frame_id = 'base_link'
     goal.position.header.stamp = rospy.Time.now()
     goal.position.point.x = -0.7
-    goal.position.point.y =  0.0
-    goal.position.point.z =  0.9
+    goal.position.point.y = 0.0
+    goal.position.point.z = 0.9
 
     client.send_goal(goal)
     client.wait_for_result()

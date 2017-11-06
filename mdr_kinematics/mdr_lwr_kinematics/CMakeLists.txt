@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(mdr_lwr_kinematics)
 
 find_package(cmake_modules REQUIRED)
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
   moveit_core
@@ -22,7 +22,10 @@ include_directories(
   ${EIGEN_INCLUDE_DIRS}
 )
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS
+  actionlib_msgs
+)
 
 set(IKFAST_LIBRARY_NAME lwr_moveit_ikfast_plugin)
 

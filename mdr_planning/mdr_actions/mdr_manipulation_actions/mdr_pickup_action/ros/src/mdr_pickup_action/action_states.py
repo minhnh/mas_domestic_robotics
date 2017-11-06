@@ -13,17 +13,20 @@ from mdr_pickup_action.msg import PickUpAction, PickUpResult, PickUpFeedback
 import mdr_lwr_kinematics.kinematics as kinematics
 import mdr_lwr_kinematics.move_arm as move_arm
 
+
 class SetupPickUp(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['succeeded', 'failed'],
                              input_keys=['pickup_goal'],
                              output_keys=['pickup_feedback', 'pickup_result'])
+
     def execute(self, userdata):
         feedback = PickUpFeedback()
         feedback.current_state = 'SETUP_PICKUP'
         feedback.message = '[pickup] starting pickup skill'
         userdata.pickup_feedback = feedback
         return 'succeeded'
+
 
 class PickUp(smach.State):
     def __init__(self):
@@ -41,7 +44,7 @@ class PickUp(smach.State):
         # height of the post-grasp over the object center
         self.post_grasp_height = rospy.get_param('~post_grasp_height')
         # at which angle of approach to start searching for a solution
-        self.orbit_start_angle = 30.0 * math.pi / 180.0;
+        self.orbit_start_angle = 30.0 * math.pi / 180.0
 
         rospy.loginfo('Pre-grasp distance: %f', self.pre_grasp_distance)
         rospy.loginfo('Grasp distance: %f', self.grasp_distance)
@@ -70,7 +73,7 @@ class PickUp(smach.State):
         rospy.logdebug('Found a trajectory')
 
         # open the hand
-        sdh_handle = self.sss.move('gripper', 'cylopen', blocking = False)
+        sdh_handle = self.sss.move('gripper', 'cylopen', blocking=False)
 
         # move the arm along the calculated trajectory to the grasp
         self.move_arm.move(traj[0:len(traj) - 2])
@@ -97,7 +100,7 @@ class PickUp(smach.State):
         '''
 
         # Prepregrasp pose
-        prepregrasp = [-1.5091513691305107, -1.6491849487892085, -2.3696059954222668, -1.6160414652896298, 0.52644578912550133, 1.9561455454345944, -2.3656075221199249]
+        prepregrasp = [-1.51, -1.65, -2.37, -1.62, 0.53, 1.96, -2.37]
 
         angle_counter = -0.2
         while (angle_counter < math.pi):
@@ -114,31 +117,36 @@ class PickUp(smach.State):
             rospy.loginfo('Planning grasp with approach angle: %f', angle)
 
             # determine the trajectory to the pre-grasp pose
-            traj_pregrasp = self.calculate_trajectory_abs(position, self.pre_grasp_distance, angle, 0.1, prepregrasp)
+            height = 0.1
+            distance = self.pre_grasp_distance
+            traj_pregrasp = self.calculate_trajectory_abs(position, s, angle, height, prepregrasp)
             if (not traj_pregrasp):
                 continue
 
             rospy.loginfo('Found pre-grasp')
 
             # determine the trajectory to the grasp pose
-            traj_grasp = self.calculate_trajectory_abs(position, self.grasp_distance, angle, 0.0, traj_pregrasp)
+            height = 0.0
+            distance = self.grasp_distance
+            traj_grasp = self.calculate_trajectory_abs(position, distancee, angle, height, traj_pregrasp)
             if (not traj_grasp):
                 continue
 
             rospy.loginfo('Found grasp')
 
             # determine the trajectory to the post-grasp pose
-            traj_post_grasp = self.calculate_trajectory_abs(position, self.grasp_distance, angle, self.post_grasp_height, traj_grasp)
-            if (not traj_post_grasp):
+            height = self.post_grasp_height
+            distance = self.grasp_distance
+            traj_post = self.calculate_trajectory_abs(position, distance, angle, height, traj_grasp)
+            if (not traj_post):
                 continue
 
             rospy.loginfo('Found post-grasp')
 
             # if all trajectories have been determined we return the result
-            return [list(prepregrasp), list(traj_pregrasp), list(traj_grasp), list(traj_post_grasp), list(prepregrasp)]
+            return [list(prepregrasp), list(traj_pregrasp), list(traj_grasp), list(traj_post), list(prepregrasp)]
 
         return None
-
 
     def calculate_trajectory_abs(self, position, distance, angle, height, configuration):
         '''
@@ -158,8 +166,6 @@ class PickUp(smach.State):
 
         # determine the inverse kinematics solution
         return self.kinematics.inverse_kinematics(pose, configuration)
-
-
 
     def calculate_pose_abs(self, position, distance, angle, height):
         '''
