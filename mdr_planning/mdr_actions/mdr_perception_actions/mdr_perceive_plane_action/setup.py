@@ -5,7 +5,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 
 d = generate_distutils_setup(
    packages=['mdr_perceive_plane_action'],
-   package_dir={'mdr_perceive_plane_action': 'src/mdr_perceive_plane_action'}
+   package_dir={'': 'ros/src'}
 )
 
 setup(**d)

@@ -13,9 +13,9 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_python_setup()
 
-add_action_files(
+add_action_files(DIRECTORY ros/action
   FILES
-  PerceivePlane.action
+    PerceivePlane.action
 )
 
 generate_messages(
@@ -34,11 +34,11 @@ include_directories(
 )
 
 install(PROGRAMS
-    scripts/perceive_plane_action
-    scripts/perceive_plane_client_test
+    ros/scripts/perceive_plane_action
+    ros/scripts/perceive_plane_client_test
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}/scripts
 )
 
 roslint_python()
-roslaunch_add_file_check(launch)
+roslaunch_add_file_check(ros/launch)
 
