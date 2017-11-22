@@ -119,7 +119,7 @@ class PickUp(smach.State):
             # determine the trajectory to the pre-grasp pose
             height = 0.1
             distance = self.pre_grasp_distance
-            traj_pregrasp = self.calculate_trajectory_abs(position, s, angle, height, prepregrasp)
+            traj_pregrasp = self.calculate_trajectory_abs(position, distance, angle, height, prepregrasp)
             if (not traj_pregrasp):
                 continue
 
@@ -128,7 +128,7 @@ class PickUp(smach.State):
             # determine the trajectory to the grasp pose
             height = 0.0
             distance = self.grasp_distance
-            traj_grasp = self.calculate_trajectory_abs(position, distancee, angle, height, traj_pregrasp)
+            traj_grasp = self.calculate_trajectory_abs(position, distance, angle, height, traj_pregrasp)
             if (not traj_grasp):
                 continue
 

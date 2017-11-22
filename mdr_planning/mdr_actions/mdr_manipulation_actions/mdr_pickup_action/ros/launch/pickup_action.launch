@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-	<node pkg="mdr_pickup_action" type="pickup_action.py" name="pickup_server" respawn="false" output="screen">
+	<node pkg="mdr_pickup_action" type="pickup_action" name="pickup_server" respawn="false" output="screen">
 		<remap from="joint_states" to="/joint_states" />
 		<remap from="get_ik" to="/compute_ik" />
 		<!--
