@@ -1,0 +1,9 @@
+# goal
+geometry_msgs/PointStamped position
+---
+# result
+bool success
+---
+# feedback
+string current_state
+string message
