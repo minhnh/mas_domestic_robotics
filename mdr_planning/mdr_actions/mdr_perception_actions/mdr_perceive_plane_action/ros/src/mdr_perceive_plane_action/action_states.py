@@ -3,6 +3,7 @@ import rospy
 import smach
 import std_msgs.msg
 from mdr_perceive_plane_action.msg import PerceivePlaneResult, PerceivePlaneFeedback
+from mcr_perception_msgs.msg import ObjectList
 
 
 class SetupPlaneConfig(smach.State):
@@ -63,12 +64,18 @@ class SetupPlaneConfig(smach.State):
 class SetActionLibResult(smach.State):
     def __init__(self, result):
         smach.State.__init__(self, outcomes=['succeeded'],
-                             input_keys=['perceive_plane_goal'],
+                             input_keys=['perceive_plane_goal', 'recognized_objects'],
                              output_keys=['perceive_plane_feedback', 'perceive_plane_result'])
         self.result = result
 
     def execute(self, userdata):
         result = PerceivePlaneResult()
         result.success = self.result
+        if userdata.recognized_objects is None:
+            result.recognized_objects = ObjectList()
+            result.recognized_objects.objects = []
+        else:
+            result.recognized_objects = userdata.recognized_objects
+            pass
         userdata.perceive_plane_result = result
         return 'succeeded'
