@@ -3,7 +3,7 @@ import glob
 import numpy as np
 import cv2
 import rospy
-from cv_bridge import CvBridge, CvBridgeError
+from cv_bridge import CvBridgeError
 
 
 def get_classes_in_data_dir(data_dir):

@@ -4,9 +4,9 @@ import actionlib
 
 from mdr_rosplan_interface.action_client_base import ActionClientBase
 from mdr_perceive_plane_action.msg import PerceivePlaneAction, PerceivePlaneGoal
-import rosplan_dispatch_msgs.msg as plan_dispatch_msgs
 import rosplan_knowledge_msgs.srv as rosplan_srvs
 import diagnostic_msgs.msg as diag_msgs
+
 
 class PerceivePlaneClient(ActionClientBase):
     def __init__(self):
@@ -22,14 +22,20 @@ class PerceivePlaneClient(ActionClientBase):
         self.action_id = msg.action_id
 
         client = actionlib.SimpleActionClient(self.action_server_name, PerceivePlaneAction)
-        client.wait_for_server()
+        if not client.wait_for_server(rospy.Duration.from_sec(int(self.action_timeout))):
+            rospy.logerr('timeout waiting for action server ' + self.action_server_name)
+            return
+
         goal = self.get_action_message(msg)
 
         # calling the actionlib server and waiting for the execution to end
         rospy.loginfo('[PERCEIVE_PLANE] Sending action lib goal to' + self.action_server_name +
                       ', plane_config: ' + goal.plane_config)
         client.send_goal(goal)
-        client.wait_for_result(rospy.Duration.from_sec(int(self.action_timeout)))
+        if not client.wait_for_result(rospy.Duration.from_sec(int(self.action_timeout))):
+            rospy.logwarn('timeout waiting for result from action server ' + self.action_server_name)
+            return
+
         result = client.get_result()
 
         if result and result.success:
@@ -40,8 +46,8 @@ class PerceivePlaneClient(ActionClientBase):
             self.send_action_feedback(False)
 
     def get_action_message(self, rosplan_action_msg):
-        '''Reads the action parameters and uses them to initialise an actionlib message.
-        '''
+        """Reads the action parameters and uses them to initialise an actionlib message.
+        """
         goal = PerceivePlaneGoal()
         for param in rosplan_action_msg.parameters:
             if param.key == 'plane':
