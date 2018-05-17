@@ -2,7 +2,7 @@
 <launch>
     <arg name="target_frame" default="/base_link"/>
     <!-- detection -->
-    <arg name="detection_service_module" default="mdr_object_recognition"/>
+    <arg name="detection_service_module" default="mas_perception_libs"/>
     <arg name="detection_service_class" default="DetectionServiceProxyTest"/>
     <!-- recognition -->
     <arg name="recognition_service_name" default="/mdr_perception/recognize_image"/>
@@ -19,5 +19,7 @@
         <param name="preprocess_input_module" type="string" value="$(arg preprocess_input_module)" />
     </node>
 
-    <include file="$(find mdr_object_recognition)/ros/launch/object_recognition.launch" />
+    <include file="$(find mdr_object_recognition)/ros/launch/object_recognition.launch">
+        <arg name="service_name" value="$(arg recognition_service_name)"/>
+    </include>
 </launch>

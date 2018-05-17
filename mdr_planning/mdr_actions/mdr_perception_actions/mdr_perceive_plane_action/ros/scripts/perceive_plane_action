@@ -3,7 +3,7 @@ import rospy
 import smach
 from importlib import import_module
 from smach_ros import ActionServerWrapper, IntrospectionServer
-from mdr_perception_libs import Constant
+from mas_perception_libs import Constant
 from mdr_perceive_plane_action.msg import PerceivePlaneAction
 from mdr_perceive_plane_action.action_states import SetActionLibResult, DetectObjects, RecognizeObjects
 
