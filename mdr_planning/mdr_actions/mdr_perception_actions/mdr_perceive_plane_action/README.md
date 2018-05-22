@@ -79,8 +79,7 @@ about the world
 
 ## Dependencies
 
-* ``mdr_object_recognition_mean_circle``
-* ``mdr_perception_libs``
+* ``mas_perception_libs``
 * ``mdr_object_recognition``
 * ``mcr_dynamic_reconfigure_client``
 * ``mcr_perception_msgs``
